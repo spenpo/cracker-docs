@@ -11,11 +11,13 @@ A quick reference of all environment variables used across the monorepo.
 | --- | --- | :---: | --- |
 | `NODE_ENV` | `development` | ✓ | Set automatically by the framework.
 | `PORT` | `3000` |  | Custom port for Next.js server. |
-| `DATABASE_URL` | `postgresql://postgres:postgres@localhost:5432/cracker` | ✓ | Used by Prisma & raw SQL pool. |
+| `DATABASE_URL` | MySQL or Postgres connection string (used by Prisma). |
 | `REDIS_URL` | `redis://localhost:6379` | ✓ | Used for caching & sessions. |
 | `NEXTAUTH_SECRET` | `super-secret-key` | ✓ | Should be random & unique per environment. |
 | `NEXTAUTH_URL` | `http://localhost:3000` | ✓ | Public URL where NextAuth callbacks will redirect. |
 | `GRAPHQL_ENDPOINT` | `/api/graphql` |  | Used by Apollo Client on the frontend. |
+| `DIRECT_URL` | Direct DB URL used by Prisma Migrate/Studio (often same as DATABASE_URL locally). |
+| `WP_ROOT` | URL of an optional WordPress site that provides blog content. |
 
 ## Docs Site (`docs/.env`)
 

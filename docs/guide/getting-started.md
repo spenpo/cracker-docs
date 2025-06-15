@@ -9,7 +9,9 @@ Learn how to set up Cracker for local development in less than 5 minutes.
 
 • Node.js ≥ 18 (use `nvm` or Volta).
 • Yarn (recommended) or npm.
-• Docker Desktop (to spin up Postgres & Redis automatically).
+• MySQL ≥ 8 (or Postgres 15).
+• Redis ≥ 7.
+• Docker Desktop (optional) if you prefer containers for MySQL/Redis.
 
 ## 2. Clone & Install
 
@@ -43,23 +45,20 @@ Important variables:
 
 ## 4. Spin Up the Database Layer
 
-The repository ships with a ready-to-go `docker-compose.yml`:
+If you prefer containers, there's a partial **work-in-progress** compose file under `server/`. It currently needs a little debugging for MySQL support — contributions welcome! In the meantime you can start both services manually:
 
 ```bash
-docker compose up -d postgres redis
+# Redis
+docker run --name redis -p 6379:6379 -d redis:7
+
+# MySQL 8 (with a blank root password for local dev)
+docker run --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mysql:8
 ```
-
-This will start:
-
-* **Postgres** ‑ `localhost:5432` (username: `postgres`, password: `postgres`).
-* **Redis** ‑ `localhost:6379`.
 
 ## 5. Generate the Prisma Client & DB schema
 
-```bash
-# Still inside app/
-yarn prisma migrate dev --name init
-```
+# Initialize the schema (creates 7 tables)
+yarn prisma migrate reset --force
 
 ## 6. Run the Development Servers
 
@@ -69,6 +68,8 @@ yarn dev
 ```
 
 Open `http://localhost:3000` in your browser — you should see Cracker running locally.
+
+> ⚠️  Some advanced features (e.g. Docker Compose setup, WP-powered content pages) are **work in progress**. Check the README or open issues for the latest status.
 
 ---
 

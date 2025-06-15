@@ -8,10 +8,7 @@ sidebar_position: 1
 
 Welcome to **Cracker**, a full-stack platform that helps teams _track their creativity_.
 
-This monorepo contains two main apps:
-
-1. `app/` — a Next.js (React) web application backed by GraphQL, Prisma & Postgres.
-2. `docs/` — a Docusaurus v3 site (this site) that hosts product & developer documentation.
+These pages document the **Cracker web application**—a Next.js (React) codebase backed by GraphQL, Prisma & Postgres.  (The documentation site itself lives in a separate repository, but you don't need to care about that while using Cracker.)
 
 What you will find in the docs:
 

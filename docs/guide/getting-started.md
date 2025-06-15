@@ -15,14 +15,11 @@ Learn how to set up Cracker for local development in less than 5 minutes.
 
 ```bash
 # HTTPS or SSH — your choice
-git clone https://github.com/<you>/cracker-mono.git
-cd cracker-mono
+git clone https://github.com/<you>/cracker-web.git
+cd cracker-web
 
-# Install top-level dependencies (only Docusaurus right now)
+# Install dependencies
 yarn
-
-# Install app/ dependencies
-yarn --cwd app install
 ```
 
 ## 3. Configure Environment Variables
@@ -30,7 +27,7 @@ yarn --cwd app install
 Copy the example files and tweak if necessary:
 
 ```bash
-cp app/.env.example app/.env
+cp .env.example .env
 ```
 
 `app/.env.example` already contains sane defaults for running everything against the local Docker network.
@@ -46,10 +43,9 @@ Important variables:
 
 ## 4. Spin Up the Database Layer
 
-Inside `app/` we provide a ready-to-go `docker-compose.yml`:
+The repository ships with a ready-to-go `docker-compose.yml`:
 
 ```bash
-cd app
 docker compose up -d postgres redis
 ```
 
@@ -69,16 +65,10 @@ yarn prisma migrate dev --name init
 
 ```bash
 # Start the Next.js webapp
-cd app && yarn dev
-
-# In a new terminal, start the docs site
-cd docs && yarn start
+yarn dev
 ```
 
-Navigate to:
-
-* `http://localhost:3000` – Cracker app.
-* `http://localhost:3001` – Docs site (hot-reloading).
+Open `http://localhost:3000` in your browser — you should see Cracker running locally.
 
 ---
 

@@ -14,7 +14,7 @@ The repository already contains a `vercel.json` file that configures:
 
 ### Steps
 
-1. Import the repo at <https://vercel.com/new>.
+1. Import the repo at [https://vercel.com/new](https://vercel.com/new).
 2. Add the environment variables listed in the [Env Vars](/docs/guide/environment) page.
 3. Choose the `app/` directory as the root of the project (Vercel detects Next.js automatically).
 4. Hit **Deploy**.
@@ -55,7 +55,7 @@ cd docs
 yarn build # ⏱ creates static files in build/
 ```
 
-Upload the `build/` directory to Vercel, Netlify, S3, Cloudflare Pages – you name it.
+Upload the `build/` directory to any static host (e.g. Vercel, Netlify, S3, Cloudflare Pages) – you name it.
 
 ---
 

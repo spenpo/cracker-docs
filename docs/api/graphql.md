@@ -11,7 +11,7 @@ Cracker exposes a single GraphQL endpoint at `/api/graphql` (relative to the Nex
 
 You can explore the schema with:
 
-* **GraphiQL** – open <http://localhost:3000/api/graphql> in the browser.
+* **GraphiQL** – open [http://localhost:3000/api/graphql](http://localhost:3000/api/graphql) in the browser.
 * **Apollo Studio** – import the endpoint and introspect.
 * **VS Code GraphQL** extension – auto-complete & linting powered by the same schema.
 

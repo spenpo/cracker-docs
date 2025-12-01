@@ -3,32 +3,26 @@ title: Environment Variables
 sidebar_position: 3
 ---
 
-A quick reference of all environment variables used across the monorepo.
+Cracker relies on several environment variables to configure connections to its backend services.
 
-## Next.js App (`app/.env`)
+## Core Variables
 
-| Variable | Example | Required | Notes |
-| --- | --- | :---: | --- |
-| `NODE_ENV` | `development` | ✓ | Set automatically by the framework.
-| `PORT` | `3000` |  | Custom port for Next.js server. |
-| `DATABASE_URL` | MySQL or Postgres connection string (used by Prisma). |
-| `REDIS_URL` | `redis://localhost:6379` | ✓ | Used for caching & sessions. |
-| `NEXTAUTH_SECRET` | `super-secret-key` | ✓ | Should be random & unique per environment. |
-| `NEXTAUTH_URL` | `http://localhost:3000` | ✓ | Public URL where NextAuth callbacks will redirect. |
-| `GRAPHQL_ENDPOINT` | `/api/graphql` |  | Used by Apollo Client on the frontend. |
-| `DIRECT_URL` | Direct DB URL used by Prisma Migrate/Studio (often same as DATABASE_URL locally). |
-| `WP_ROOT` | URL of an optional WordPress site that provides blog content. |
+These variables are typically set in your `.env` file or your deployment platform's dashboard.
 
-## Docs Site (`docs/.env`)
+| Variable | Description | Default (Local) |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | Connection string for the PostgreSQL database. | `postgresql://postgres:postgres@localhost:5432/postgres` |
+| `MONGODB_URI` | Connection string for the MongoDB instance (used for logs). | `mongodb://mongo:mongo@localhost:27017` |
+| `REDIS_URL` | Connection string for the Redis cache. | `redis://localhost:6379` |
+| `NODE_ENV` | The current Node.js environment. | `development` |
 
-No runtime secrets are required. All content is static and is compiled at build time. If you plan to deploy the docs separately you can manipulate:
+## Optional / Feature Flags
 
-| Variable | Default | Notes |
-| --- | --- | --- |
-| `SITE_URL` | `https://docs.cracker.dev` | Used for SEO and sitemap generation. |
+| Variable | Description |
+| :--- | :--- |
+| `PORT` | The port the Next.js server listens on (default: 3000). |
+| `NEXT_PUBLIC_ANALYTICS_ID` | (Example) Public ID for analytics services. |
 
-## CI/CD Secrets
+## Configuration for Docker
 
-When deploying to hosted environments (e.g. Vercel, Railway) remember to provide the same variables in the dashboard or via your CI provider's secret store.
-
-👉 Tip: use a `.env.local` file for overrides that should **never** be committed to Git. 
+When running with `docker-compose`, these variables are often injected automatically or defined in the `docker-compose.yml` file within the `/server` directory.

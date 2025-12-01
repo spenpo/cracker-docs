@@ -1,120 +1,48 @@
 ---
-title: GraphQL Reference
+title: GraphQL API
 sidebar_position: 1
 ---
 
-Cracker exposes a single GraphQL endpoint at `/api/graphql` (relative to the Next.js deployment domain).
+Cracker exposes a single flexible **GraphQL** endpoint at `/api/graphql`. This API is the primary method for data fetching and manipulation in the frontend.
 
-> All examples below assume the server is running at `http://localhost:3000`.
+## Tech Stack
 
-## Tooling
+*   **TypeGraphQL**: The API schema is built using a "code-first" approach. Instead of writing separate `.graphql` schema files, we define TypeScript classes and decorate them. TypeGraphQL generates the schema from these classes.
+*   **Apollo Server**: Serves the GraphQL API within a Next.js API route.
+*   **GraphQL Codegen**: Generates TypeScript types for the frontend based on the backend schema and client-side queries.
 
-You can explore the schema with:
+## Workflow
 
-* **GraphiQL** – open [http://localhost:3000/api/graphql](http://localhost:3000/api/graphql) in the browser.
-* **Apollo Studio** – import the endpoint and introspect.
-* **VS Code GraphQL** extension – auto-complete & linting powered by the same schema.
+### 1. Defining the Schema (Backend)
+Schema definitions and resolvers live in `src/graphql`. When you modify a resolver or input type, you are directly modifying the API contract.
 
-## Schema Quick Look
-
-```graphql
-# src/graphql/schemas/index.ts gets auto-merged into this printable schema
-
-"""A user in the system"""
-type User {
-  id: ID!
-  email: String!
-  createdAt: DateTime!
-  plan: Plan!
-}
-
-"""Single track entry"""
-type Track {
-  id: ID!
-  userId: ID!
-  hours: Int!
-  rating: Int!
-  createdAt: DateTime!
-}
-
-"""Aggregate metrics for the dashboard"""
-type DashboardMetrics {
-  daysOfUse: Int!
-  avgHours: Float!
-  ratings: RatingsBreakdown!
-}
-
-# ... plus ~30 more types, inputs & enums
-```
-
-## Common Operations
-
-### Register
-
-```graphql
-mutation Register($email: String!, $password: String!) {
-  register(input: { email: $email, password: $password }) {
-    user {
-      id
-      email
-    }
-    errors {
-      field
-      message
-    }
+**Example (Conceptual):**
+```typescript
+@Resolver()
+export class CreativityResolver {
+  @Query(() => [Metric])
+  async getMetrics(): Promise<Metric[]> {
+    // Business logic here
   }
 }
 ```
 
-### Add a Track
+### 2. Generating Types (Frontend)
+After modifying the backend schema (resolvers/types), you must regenerate the frontend TypeScript types to ensure type safety across the application.
 
-```graphql
-mutation AddTrack($hours: Int!, $rating: Int!) {
-  uploadTracker(hours: $hours, rating: $rating) {
-    track {
-      id
-      hours
-      rating
-    }
-    errors {
-      field
-      message
-    }
-  }
-}
+**Command:**
+```bash
+yarn codegen
 ```
 
-### Get Dashboard Metrics
+> **Requirement:** The development server (`yarn dev`) must be running because the codegen tool introspects the live GraphQL endpoint (usually `http://localhost:3000/api/graphql`).
 
-```graphql
-query Metrics($runningAvg: String!) {
-  dashboardMetrics(runningAvg: $runningAvg) {
-    dashboardMetrics {
-      daysOfUse
-      avgHours
-      ratings {
-        countNegTwo
-        countZero
-        countPlusTwo
-      }
-    }
-  }
-}
-```
+### 3. Using the API (Frontend)
+The frontend uses **Apollo Client** to consume the API. The generated types from step 2 allow for fully typed hooks and queries.
 
-## Error Handling Strategy
+## Endpoint
+*   **URL**: `/api/graphql`
+*   **Method**: `POST`
 
-Each operation returns `{ data, errors }` following the Apollo-friendly pattern. Errors include a `field` key whenever possible, so you can map them to individual input components.
-
-## Pagination
-
-List fields are paginated with Relay-style connections (`edges`, `pageInfo`). Cursor-based pagination keeps requests fast even on large tables.
-
-## Rate Limiting & Caching
-
-* Heavy aggregation queries (e.g., `dashboardMetrics`) are cached in Redis under the key pattern `dashboardMetrics:<userId>:<runningAvg>`.
-* Mutations automatically invalidate affected caches.
-
----
-
-The full schema is generated at build time and committed under `app/generated/graphql.schema.json` – import it in your favourite tooling for type-safety! 
+## Tools
+*   **Playground**: You can explore the API schema and test queries using the GraphQL Playground (or Apollo Sandbox) by visiting `http://localhost:3000/api/graphql` in your browser while the server is running.

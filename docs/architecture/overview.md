@@ -1,61 +1,57 @@
 ---
-title: Overview
+title: Architecture Overview
 sidebar_position: 1
 ---
 
-This page gives you a bird's-eye view of the Cracker codebase.
+This page outlines the high-level architecture and directory structure of the Cracker platform.
+
+## System Architecture
+
+Cracker follows a modern full-stack serverless-compatible architecture, though it relies on persistent containerized storage for local development.
 
 ```mermaid
 graph TD
     subgraph Frontend
-        A[Next.js 14] -- Apollo Client --> B[GraphQL API]
-        A -- REST \n Auth --> C[/api/auth]
+        A[Next.js / React 18] -- Apollo Client --> B[GraphQL Endpoint]
     end
-    subgraph Backend
-        B -- TypeGraphQL --> D[Resolvers]
-        D --> E[Prisma ORM]
-        D --> F[Raw SQL Pool]
-        E --> G[(Postgres)]
-        F --> G
-        D --> H[Redis Cache]
+    subgraph Backend [Next.js API Route]
+        B -- /api/graphql --> C[Apollo Server]
+        C -- TypeGraphQL --> D[Resolvers]
+    end
+    subgraph Infrastructure [Docker Containers]
+        D --> E[(PostgreSQL)]
+        D --> F[(MongoDB)]
+        D --> G[(Redis)]
     end
 ```
 
-## Key Packages
+### Data Flow
+1.  **Client**: The React frontend (MUI + Nivo) sends GraphQL queries/mutations using Apollo Client.
+2.  **API Layer**: Requests are handled by Next.js API routes (`/pages/api/graphql.ts`).
+3.  **Resolver Layer**: Apollo Server processes the request using schemas and resolvers defined with TypeGraphQL.
+4.  **Data Layer**: Resolvers interact with:
+    *   **PostgreSQL** for primary structured data.
+    *   **MongoDB** for logs and unstructured data.
+    *   **Redis** for caching frequently accessed data.
 
-| Location | Tech | Purpose |
-| --- | --- | --- |
-| `app/` | Next.js, TypeScript | Web UI & API routes |
-| `app/graphql` | TypeGraphQL | GraphQL schema & resolvers |
-| `app/prisma` | Prisma | Database schema & migrations |
-| `app/utils` | Redis, Postgres pool | Cross-cutting utilities |
-| `docs/` | Docusaurus | This documentation site |
+## Directory Structure
 
-## Data Flow
+The project is organized to separate the frontend UI, GraphQL logic, and infrastructure configuration.
 
-1. The React UI issues GraphQL operations via Apollo.
-2. API requests hit `/api/graphql` (Next.js edge-compatible handler).
-3. Resolvers execute business logic, fetching data from Postgres either through Prisma or raw SQL functions.
-4. Frequently accessed payloads are cached in Redis.
-5. Responses are returned to the client; the UI updates optimistically.
+*   **`/pages`**: Next.js pages and API routes.
+    *   `api/graphql.ts`: The entry point for the Apollo GraphQL server.
+*   **`/graphql`**: Core logic for the GraphQL API and Client.
+    *   `/resolvers`: Backend resolvers (business logic) for TypeGraphQL.
+    *   `/schemas`: TypeGraphQL schemas and input type definitions.
+    *   `/client`: Client-side GraphQL queries, mutations, and hooks.
+*   **`/components`**: Reusable React UI components (built with Material UI).
+*   **`/server`**: Infrastructure configuration.
+    *   `docker-compose.yml`: Defines the backend services (DBs, Redis, Admin tools).
+    *   Database initialization scripts.
+*   **`/generated`**: Auto-generated TypeScript types from the GraphQL schema (via `graphql-codegen`).
 
-## Domain Modules
+## Key Technologies
 
-* **Track** – capture daily creative hours & rating.
-* **Dashboard** – compute aggregated metrics (via SQL Stored Procedures).
-* **Auth** – powered by NextAuth with JWT sessions.
-* **Feature Flags** – simple on/off flags stored in the database and piped to the client.
-
-## Serverless Friendly
-
-All heavyweight resources (Postgres, Redis) live outside the Next.js runtime — you can deploy the app to Vercel, Fly, or any serverless platform without changes.
-
-## Future Improvements
-
-* Adopt **tRPC** for type-safe API calls.
-* Introduce **Vitest** for unit & integration tests.
-* Add **OpenTelemetry** instrumentation for end-to-end tracing.
-
----
-
-For implementation details jump into the source folders or continue with the [API docs](/docs/api/graphql). 
+*   **TypeGraphQL**: Used to define the schema and resolvers using TypeScript classes and decorators, enabling a "code-first" GraphQL development approach.
+*   **Apollo Server**: Handles the GraphQL request lifecycle.
+*   **Docker**: Encapsulates the database and caching layers, ensuring a consistent development environment.

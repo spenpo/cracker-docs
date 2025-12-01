@@ -3,60 +3,54 @@ title: Deployment
 sidebar_position: 4
 ---
 
-Production deployment can be done in multiple ways. Below are the officially supported targets — feel free to adapt to your stack of choice.
+Cracker is a standard Next.js application, which makes it flexible to deploy on various platforms. However, it requires access to running PostgreSQL, MongoDB, and Redis instances.
 
-## Vercel (recommended)
+## Prerequisites
 
-The repository already contains a `vercel.json` file that configures:
+Before deploying the application code, ensure you have the following managed services (or containers) running and accessible:
 
-* A single **Next.js** build with environment variables taken from the dashboard.
-* An automatic production deployment on pushes to the `main` branch.
+*   **PostgreSQL**: Primary database.
+*   **MongoDB**: Log database.
+*   **Redis**: Cache store.
 
-### Steps
+Set the connection strings for these services as environment variables (see [Environment Variables](/docs/guide/environment)) in your deployment target.
 
-1. Import the repo at [https://vercel.com/new](https://vercel.com/new).
-2. Add the environment variables listed in the [Env Vars](/docs/guide/environment) page.
-3. Choose the `app/` directory as the root of the project (Vercel detects Next.js automatically).
-4. Hit **Deploy**.
+## Deployment Options
 
-Vercel will:
+### 1. Vercel (Recommended for Frontend/API)
 
-* Run `yarn install` in `app/`.
-* Build & cache the Next.js output.
-* Run `prisma generate` automatically.
+The easiest way to deploy the Next.js application is via [Vercel](https://vercel.com/).
 
-The GraphQL endpoint will live at `/api/graphql` and will be server-side rendered.
+1.  **Connect Repo**: Import your Cracker repository into Vercel.
+2.  **Configure Envs**: Add `DATABASE_URL`, `MONGODB_URI`, and `REDIS_URL` to the project settings.
+3.  **Deploy**: Vercel will automatically detect the Next.js framework and build the application.
 
-## Docker Compose (self-hosting)
+> **Note**: You will need to host your databases (Postgres/Mongo/Redis) separately (e.g., via Supabase, MongoDB Atlas, Upstash) and provide the connection strings to Vercel.
 
-Inside `app/server/` you can find a `docker-compose.production.yml` file that starts:
+### 2. Docker (Self-Hosted)
 
-* `cracker_web` – Next.js app built for production.
-* `postgres` – Postgres 15 with the same schema used in dev.
-* `redis` – Redis 7.2 for caching.
+You can containerize the entire application for deployment on any VPS or container platform (AWS ECS, DigitalOcean, Fly.io).
+
+**Build the Image:**
 
 ```bash
-cd app/server
-docker compose -f docker-compose.production.yml up --build -d
+docker build -t cracker-app .
 ```
 
-The site will be available at `http://localhost:8080` (proxied through Nginx).
+**Run the Container:**
 
-## Railway / Render / Fly.io
-
-Because the repository is _container-ready_ you can deploy to any platform that supports Docker images. Use the provided `Dockerfile` in `app/` as your image source.
-
-## Docs Site
-
-The documentation is a static site; it can be deployed almost anywhere:
+Ensure the container has access to the network where your databases are running.
 
 ```bash
-cd docs
-yarn build # ⏱ creates static files in build/
+docker run -p 3000:3000 \
+  -e DATABASE_URL=... \
+  -e MONGODB_URI=... \
+  -e REDIS_URL=... \
+  cracker-app
 ```
 
-Upload the `build/` directory to any static host (e.g. Vercel, Netlify, S3, Cloudflare Pages) – you name it.
+### 3. Static Export (Not Supported)
 
----
+Because Cracker relies on server-side GraphQL API routes and runtime database connections, `next export` (static site generation) is **not** fully supported for the entire application. The frontend can be statically optimized, but the `/api` routes require a Node.js runtime.
 
-Need more guidance? Create an issue or open a discussion 🙌 
+```

@@ -3,74 +3,68 @@ title: Getting Started
 sidebar_position: 2
 ---
 
-Learn how to set up Cracker for local development in less than 5 minutes.
+This guide will help you set up the Cracker development environment on your local machine.
 
-## 1. Prerequisites
+## Prerequisites
 
-• Node.js ≥ 18 (use `nvm` or Volta).
-• Yarn (recommended) or npm.
-• MySQL ≥ 8 (or Postgres 15).
-• Redis ≥ 7.
-• Docker Desktop (optional) if you prefer containers for MySQL/Redis.
+Ensure you have the following installed before proceeding:
 
-## 2. Clone & Install
+*   **Node.js** (v18+ recommended)
+*   **Yarn** (or npm)
+*   **Docker & Docker Compose** (Required for backend services)
+
+## Installation & Setup
+
+Follow these steps to get the application running:
+
+### 1. Install Dependencies
+
+Navigate to the project root and install the required packages:
 
 ```bash
-# HTTPS or SSH — your choice
-git clone https://github.com/<you>/cracker-web.git
-cd cracker-web
-
-# Install dependencies
-yarn
+yarn install
 ```
 
-## 3. Configure Environment Variables
+### 2. Start Backend Infrastructure
 
-Copy the example files and tweak if necessary:
+Spin up the required backend services (PostgreSQL, MongoDB, Redis) using Docker Compose. This command also starts the admin tools (pgAdmin and Mongo Express).
 
 ```bash
-cp .env.example .env
+yarn start:server
 ```
 
-`app/.env.example` already contains sane defaults for running everything against the local Docker network.
+> **Note:** Ensure Docker Desktop (or the Docker daemon) is running before executing this command.
 
-Important variables:
+### 3. Start Development Server
 
-| Variable | Description |
-| --- | --- |
-| `DATABASE_URL` | Postgres connection string (set by `docker-compose`). |
-| `REDIS_URL` | Redis connection string. |
-| `NEXTAUTH_SECRET` | Used to encrypt session cookies. |
-| `NEXTAUTH_URL` | Full URL of the Next.js server. |
-
-## 4. Spin Up the Database Layer
-
-If you prefer containers, there's a partial **work-in-progress** compose file under `server/`. It currently needs a little debugging for MySQL support — contributions welcome! In the meantime you can start both services manually:
+Launch the Next.js development server:
 
 ```bash
-# Redis
-docker run --name redis -p 6379:6379 -d redis:7
-
-# MySQL 8 (with a blank root password for local dev)
-docker run --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -p 3306:3306 -d mysql:8
-```
-
-## 5. Generate the Prisma Client & DB schema
-
-# Initialize the schema (creates 7 tables)
-yarn prisma migrate reset --force
-
-## 6. Run the Development Servers
-
-```bash
-# Start the Next.js webapp
 yarn dev
 ```
 
-Open `http://localhost:3000` in your browser — you should see Cracker running locally.
+You can now access the application at [http://localhost:3000](http://localhost:3000).
 
-> ⚠️  Some advanced features (e.g. Docker Compose setup, WP-powered content pages) are **work in progress**. Check the README or open issues for the latest status.
+### 4. Generate GraphQL Types
 
----
+Cracker uses `graphql-codegen` to generate TypeScript types from the GraphQL schema. Since the codegen process introspects the running GraphQL endpoint, **the development server must be running** (Step 3) for this to work.
 
-🎉 That's it! You have a fully-functioning Cracker stack running locally. 
+In a separate terminal window, run:
+
+```bash
+yarn codegen
+```
+
+## Key Commands
+
+Here are the most common commands you'll use during development:
+
+| Command | Description |
+| :--- | :--- |
+| `yarn dev` | Starts the Next.js development server. |
+| `yarn build` | Builds the application for production. |
+| `yarn start:server` | Starts backend services (DBs, Cache) via Docker Compose. |
+| `yarn codegen` | Generates GraphQL types based on schema and operations. |
+| `yarn lint` | Runs ESLint. |
+| `yarn it:db` | Access the running PostgreSQL container shell. |
+| `yarn it:cache` | Access the running Redis CLI. |

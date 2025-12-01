@@ -34,5 +34,11 @@
 }
 
 body {
+  background-color: var(--docs-gradient-start);
+}
+
+#__docusaurus {
   background-image: linear-gradient(180deg, var(--docs-gradient-start) 35%, var(--docs-gradient-start) 75%, var(--docs-gradient-end) 200%);
+  background-repeat: no-repeat;
+  background-size: 100% auto;
 }

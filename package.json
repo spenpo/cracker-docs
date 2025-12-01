@@ -1,6 +1,6 @@
 {
   "name": "cracker-docs",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -20,7 +20,8 @@
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-player": "^2.16.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.8.0",

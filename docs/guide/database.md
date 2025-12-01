@@ -1,35 +1,54 @@
 ---
-:title: Database
-:sidebar_position: 4
+title: Database & Infrastructure
+sidebar_position: 4
 ---
 
-# Database
+Cracker utilizes a robust local infrastructure managed via Docker Compose. This ensures that all necessary databases and caching services are available without manual installation.
 
-Cracker stores data in a relational database accessed through **Prisma ORM** plus a few raw SQL calls.
+## Services Overview
 
-## Supported engines
+The platform relies on three primary backend services:
 
-* **MySQL 8** – officially supported and used in production.
-* **PostgreSQL 15** – works as well, but you need to tweak the Prisma schema (see `schema.prisma`).
+| Service | Type | Port | Usage |
+| :--- | :--- | :--- | :--- |
+| **PostgreSQL** | Relational DB | `5432` | Primary application data (Users, Metrics). |
+| **MongoDB** | NoSQL DB | `27017` | Unstructured data and logs. |
+| **Redis** | Key-Value Store | `6379` | Caching and session storage. |
 
-## Local development
+## Access & Credentials
 
-1. Create an empty database.
-2. Fill `DATABASE_URL` (and `DIRECT_URL` if you use Prisma Accelerate) in `.env`.
-3. Run `yarn prisma migrate reset --force` – this recreates all 7 tables defined in `/prisma/migrations/`.
+For local development, the following credentials are pre-configured in the docker-compose setup:
 
-## Prisma Accelerate (optional)
+### PostgreSQL
+*   **User**: `postgres`
+*   **Password**: `postgres`
+*   **Database**: `postgres`
+*   **Port**: `5432`
 
-In production we plan to use [Prisma Accelerate](https://www.prisma.io/docs/accelerate) to improve query performance. That's why the default `.env.example` shows a `prisma://…` URL. For local development you can simply point both `DATABASE_URL` and `DIRECT_URL` at the same MySQL connection string.
+### MongoDB
+*   **User**: `mongo`
+*   **Password**: `mongo`
+*   **Port**: `27017`
 
-## Baseline migrations
+### Redis
+*   **Port**: `6379`
+*   (No default password for local dev)
 
-The very first migration (`0_init`) is the **baseline** that mirrors the current production schema. After cloning a prod database remember to run `prisma migrate diff` if you need to baseline it again.
+## Administration Tools
 
-## Docker images (⚠️ WIP)
+The project includes web-based administration tools for managing the databases. These are started automatically with `yarn start:server`.
 
-There are Dockerfiles and SQL scripts in `server/database/` for both MySQL and Postgres. They build successfully, but the accompanying `docker-compose.yml` still needs adjustments. Feel free to contribute fixes!
+### pgAdmin (PostgreSQL)
+*   **URL**: [http://localhost:4000](http://localhost:4000)
+*   **Login Email**: `spope@blockchains.com`
+*   **Login Password**: `password`
 
-## WordPress content
+### Mongo Express (MongoDB)
+*   **URL**: [http://localhost:8081](http://localhost:8081)
+*   **Credentials**: (Check `docker-compose.yml` if prompted, usually `admin` / `pass` or similar defaults).
 
-Some pages inside the app pull blog content from a WordPress install (see `WP_ROOT` env var). This is **optional** and can be stripped out if you don't need embedded blog posts. 
+## Management Commands
+
+*   **Start Services**: `yarn start:server`
+*   **Access Postgres Shell**: `yarn it:db`
+*   **Access Redis CLI**: `yarn it:cache`
